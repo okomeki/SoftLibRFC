@@ -13,7 +13,7 @@ public class UUID4122 {
     public static ABNFReg REG = new ABNFReg();
 
     static ABNF hexDigit = REG.rule("hexDigit", ABNF5234.HEXDIG);
-    static ABNF hexOctet = REG.rule("hexOctet", ABNF5234.HEXDIG.x(2,2));
+    static ABNF hexOctet = REG.rule("hexOctet", hexDigit.x(2,2));
     static ABNF timeLow = REG.rule("time-low",hexOctet.x(4,4));
     static ABNF timeMid = REG.rule("time-mid",hexOctet.x(2,2));
     static ABNF timeHighAndVersion = REG.rule("time-high-and-version",hexOctet.x(2,2));
