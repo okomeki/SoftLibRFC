@@ -4,6 +4,7 @@ import java.util.List;
 import net.siisise.abnf.ABNF;
 import net.siisise.abnf.ABNFReg;
 import net.siisise.abnf.parser.ABNFBaseParser;
+import net.siisise.io.FrontPacket;
 import net.siisise.io.Packet;
 
 /**
@@ -25,7 +26,7 @@ public class HTTP7230Repetition extends ABNFBaseParser<ABNF, ABNF> {
      * @return
      */
     @Override
-    public ABNF parse(Packet pac) {
+    public ABNF parse(FrontPacket pac) {
         inst();
 //        System.out.println("rep: " + strd(pac));
         ABNF.C<Object> ret = def.find(pac, x(HTTP7230.repList), subs[0]);

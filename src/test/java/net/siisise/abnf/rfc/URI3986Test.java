@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
- * @author okome
  */
 public class URI3986Test {
     
