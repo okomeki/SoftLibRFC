@@ -820,7 +820,7 @@ public class GenericJPDN {
 //    );
     static ABNF JAlabel = REG.rule("JA-label",
             JA_char.pl(JA_char.or(ALNUM_HYPHEN).x().plm(JA_char.or(ALNUM)).c()).or(
-                    ALNUM.plm(JA_char.or(ALNUM_HYPHEN).x(), JA_char, JA_char.or(ALNUM_HYPHEN).x().plm(ALNUM).c()))
+                    ALNUM.plu(JA_char.or(ALNUM_HYPHEN).x(), JA_char, JA_char.or(ALNUM_HYPHEN).x().plm(ALNUM).c()))
     );
 //    static ABNF JAlabel1a = REG.rule("JA-label1a",
 //            JA_char.x().plm(JA_char) );
