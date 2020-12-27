@@ -10,9 +10,9 @@ import net.siisise.abnf.parser5234.ABNF5234;
  */
 public class GenericJPDN {
 
-    public static ABNFReg REG = new ABNFReg();
+    public static final ABNFReg REG = new ABNFReg();
 
-    static ABNF JA_char = REG.rule("JA-char", ABNF.range(0x3041,0x3093).or(
+    static final ABNF JA_char = REG.rule("JA-char", ABNF.range(0x3041,0x3093).or(
             ABNF.range(0x30A1, 0x30F6),ABNF.range(0x30FB,0x30FE),REG.elements( 
             "%x3005 / %x3006 / %x3007 / %x309D / %x309E /"
             + "	%x4E00 / %x4E01 / %x4E03 / %x4E07 / %x4E08 / %x4E09 /"

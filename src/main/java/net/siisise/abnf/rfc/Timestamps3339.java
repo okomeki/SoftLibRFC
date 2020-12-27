@@ -9,7 +9,7 @@ import net.siisise.abnf.parser5234.ABNF5234;
  */
 public class Timestamps3339 {
 
-    public static ABNFReg REG = new ABNFReg(ABNF5234.BASE);
+    public static final ABNFReg REG = new ABNFReg(ABNF5234.BASE);
 
     static ABNF dateFullyear = REG.rule("date-fullyear", "4DIGIT");
     static ABNF dateMonth = REG.rule("date-month", "2DIGIT"); // ; 01-12
