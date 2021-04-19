@@ -5,7 +5,8 @@ import net.siisise.abnf.ABNFReg;
 import net.siisise.abnf.parser5234.ABNF5234;
 
 /**
- *
+ * RFC 3513で消された?
+ * RFC 3513, RFC 4291 に改訂あり
  */
 public class IPv62373 {
 

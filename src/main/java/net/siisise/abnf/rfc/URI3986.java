@@ -13,7 +13,7 @@ import net.siisise.abnf.parser5234.ABNF5234;
  */
 public class URI3986 {
 
-    static final ABNFReg REG = new ABNFReg(ABNF5234.BASE, ABNF5234.REG);
+    public static final ABNFReg REG = new ABNFReg(ABNF5234.BASE, ABNF5234.REG);
 
     static final ABNF pctEncoded = REG.rule("pct-encoded", ABNF.bin('%').pl(ABNF5234.HEXDIG, ABNF5234.HEXDIG));
     static final ABNF genDelims = REG.rule("gen-delims", ABNF.list(":/?#[]@"));
@@ -31,7 +31,7 @@ public class URI3986 {
     static final ABNF IPv4address = REG.rule("IPv4address", "dec-octet \".\" dec-octet \".\" dec-octet \".\" dec-octet");
     static final ABNF h16 = REG.rule("h16", ABNF5234.HEXDIG.x(1, 4));
     static final ABNF ls32 = REG.rule("ls32", "( h16 \":\" h16 ) / IPv4address");
-    static final ABNF IPv6address = REG.rule("IPv6address", "6( h16 \":\" ) ls32 "
+    public static final ABNF IPv6address = REG.rule("IPv6address", "6( h16 \":\" ) ls32 "
             + " /                       \"::\" 5( h16 \":\" ) ls32 "
             + " / [               h16 ] \"::\" 4( h16 \":\" ) ls32 "
             + " / [ *1( h16 \":\" ) h16 ] \"::\" 3( h16 \":\" ) ls32 "

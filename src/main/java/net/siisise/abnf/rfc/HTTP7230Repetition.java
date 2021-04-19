@@ -4,8 +4,8 @@ import java.util.List;
 import net.siisise.abnf.ABNF;
 import net.siisise.abnf.ABNFReg;
 import net.siisise.abnf.parser.ABNFBaseParser;
+import net.siisise.abnf.parser.ABNFParser;
 import net.siisise.io.FrontPacket;
-import net.siisise.io.Packet;
 
 /**
  * RFC 7230 7.
@@ -28,27 +28,28 @@ public class HTTP7230Repetition extends ABNFBaseParser<ABNF, ABNF> {
     @Override
     public ABNF parse(FrontPacket pac) {
         inst();
+        
+        ABNFParser<? extends ABNF> elem = subs[0];
 //        System.out.println("rep: " + strd(pac));
-        ABNF.C<Object> ret = def.find(pac, x(HTTP7230.repList), subs[0]);
+        ABNF.C<Object> ret = rule.find(pac, strp(HTTP7230.repList), elem);
         if (ret == null) {
             return null;
         }
         List<Object> rep = ret.get(HTTP7230.repList);
-        ABNF element = (ABNF) ret.get(subs[0].getBNF()).get(0);
+        ABNF element = (ABNF) ret.get(elem.getBNF()).get(0);
 //        System.out.println("ee;:" + strd(element));
         //ABNF ele = subs[0].parse(element);
         if (rep != null) {
-            return repeat((Packet) rep.get(0), element);
+            return repeat((String) rep.get(0), element);
         }
         return element;
     }
 
-    ABNF repeat(Packet repeat, ABNF element) {
-        String rep = str(repeat);
-        if (rep.contains("#")) {
-            int off = rep.indexOf("#");
-            String l = rep.substring(0, off);
-            String r = rep.substring(off + 1);
+    ABNF repeat(String repeat, ABNF element) {
+        if (repeat.contains("#")) {
+            int off = repeat.indexOf("#");
+            String l = repeat.substring(0, off);
+            String r = repeat.substring(off + 1);
             if (l.isEmpty()) {
                 l = "0";
             }
@@ -68,7 +69,7 @@ public class HTTP7230Repetition extends ABNFBaseParser<ABNF, ABNF> {
             }
             return null;
         } else {
-            int r = Integer.parseInt(rep);
+            int r = Integer.parseInt(repeat);
             ABNF ex = element;
             return ex.x(r, r);
         }

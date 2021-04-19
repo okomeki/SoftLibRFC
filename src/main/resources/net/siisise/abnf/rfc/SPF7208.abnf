@@ -1,0 +1,95 @@
+record           = version terms *SP
+version          = "v=spf1"
+terms            = *( 1*SP ( directive / modifier ) )
+directive        = [ qualifier ] mechanism
+qualifier        = "+" / "-" / "?" / "~"
+mechanism        = ( all / include
+                   / a / mx / ptr / ip4 / ip6 / exists )
+all              = "all"
+include          = "include"  ":" domain-spec
+a                = "a"      [ ":" domain-spec ] [ dual-cidr-length ]
+mx               = "mx"     [ ":" domain-spec ] [ dual-cidr-length ]
+ptr              = "ptr"    [ ":" domain-spec ]
+ip4              = "ip4"      ":" ip4-network   [ ip4-cidr-length ]
+ip6              = "ip6"      ":" ip6-network   [ ip6-cidr-length ]
+exists           = "exists"   ":" domain-spec
+modifier         = redirect / explanation / unknown-modifier
+redirect         = "redirect" "=" domain-spec
+explanation      = "exp" "=" domain-spec
+unknown-modifier = name "=" macro-string
+                   ; where name is not any known modifier
+ip4-cidr-length  = "/" ("0" / %x31-39 0*1DIGIT) ; value range 0-32
+ip6-cidr-length  = "/" ("0" / %x31-39 0*2DIGIT) ; value range 0-128
+dual-cidr-length = [ ip4-cidr-length ] [ "/" ip6-cidr-length ]
+ip4-network      = qnum "." qnum "." qnum "." qnum
+qnum             = DIGIT                 ; 0-9
+                   / %x31-39 DIGIT       ; 10-99
+                   / "1" 2DIGIT          ; 100-199
+                   / "2" %x30-34 DIGIT   ; 200-249
+                   / "25" %x30-35        ; 250-255
+         ; conventional dotted-quad notation, e.g., 192.0.2.0
+ip6-network      = <as per Section 2.2 of [RFC4291]>
+         ; e.g., 2001:db8::cd30
+domain-spec      = macro-string domain-end
+domain-end       = ( "." toplabel [ "." ] ) / macro-expand
+toplabel         = ( *alphanum ALPHA *alphanum ) /
+                   ( 1*alphanum "-" *( alphanum / "-" ) alphanum )
+                   ; LDH rule plus additional TLD restrictions
+                   ; (see Section 2 of [RFC3696] for background)
+alphanum         = ALPHA / DIGIT
+explain-string   = *( macro-string / SP )
+macro-string     = *( macro-expand / macro-literal )
+macro-expand     = ( "%{" macro-letter transformers *delimiter "}" )
+                   / "%%" / "%_" / "%-"
+macro-literal    = %x21-24 / %x26-7E
+                   ; visible characters except "%"
+macro-letter     = "s" / "l" / "o" / "d" / "i" / "p" / "h" /
+                   "c" / "r" / "t" / "v"
+transformers     = *DIGIT [ "r" ]
+delimiter        = "." / "-" / "+" / "," / "/" / "_" / "="
+name             = ALPHA *( ALPHA / DIGIT / "-" / "_" / "." )
+header-field     = "Received-SPF:" [CFWS] result FWS [comment FWS]
+                   [ key-value-list ] CRLF
+result           = "pass" / "fail" / "softfail" / "neutral" /
+                   "none" / "temperror" / "permerror"
+key-value-list   = key-value-pair *( ";" [CFWS] key-value-pair )
+                   [";"]
+key-value-pair   = key [CFWS] "=" ( dot-atom / quoted-string )
+key              = "client-ip" / "envelope-from" / "helo" /
+                   "problem" / "receiver" / "identity" /
+                    "mechanism" / name
+identity         = "mailfrom"   ; for the "MAIL FROM" identity
+                   / "helo"     ; for the "HELO" identity
+                   / name       ; other identities
+sender           = Mailbox
+ip               = ip4-network / ip6-network
+ALPHA            = %x41-5A / %x61-7A   ; A-Z / a-z ; <A-Z / a-z as per [RFC5234]>
+DIGIT            = %x30-39 ; <0-9 as per [RFC5234]>
+SP               = %x20 ; <space character as per [RFC5234]>
+dot-atom         = [CFWS] dot-atom-text [CFWS] ; <unquoted word as per [RFC5322]>
+dot-atom-text   =   1*atext *("." 1*atext)
+atext           =   ALPHA / DIGIT /    ; Printable US-ASCII
+                       "!" / "#" /        ;  characters not including
+                       "$" / "%" /        ;  specials.  Used for atoms.
+                       "&" / "'" /
+                       "*" / "+" /
+                       "-" / "/" /
+                       "=" / "?" /
+                       "^" / "_" /
+                       "`" / "{" /
+                       "|" / "}" /
+                       "~"
+quoted-string   =   [CFWS]
+                       DQUOTE *([FWS] qcontent) [FWS] DQUOTE
+                       [CFWS] ; <quoted string as per [RFC5322]>
+qcontent        =   qtext / quoted-pair
+qtext           =   %d33 /             ; Printable US-ASCII
+                       %d35-91 /          ;  characters not including
+                       %d93-126 /         ;  "\" or the quote character
+                       obs-qtext
+quoted-pair     =   ("\" (VCHAR / WSP)) / obs-qp
+obs-qp          =   "\" (%d0 / obs-NO-WS-CTL / LF / CR)
+comment          = <comment string as per [RFC5322]>
+CFWS             = <comment or folding white space as per [RFC5322]>
+FWS              = <folding white space as per [RFC5322]>
+CRLF             = <standard end-of-line token as per [RFC5322]>
