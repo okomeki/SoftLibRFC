@@ -3,17 +3,16 @@ package net.siisise.abnf.rfc;
 import java.util.List;
 import net.siisise.abnf.ABNF;
 import net.siisise.abnf.ABNFReg;
-import net.siisise.abnf.parser.ABNFBaseParser;
-import net.siisise.abnf.parser.ABNFParser;
+import net.siisise.abnf.parser.ABNFBuildParser;
 import net.siisise.io.FrontPacket;
 
 /**
  * RFC 7230 7.
  */
-public class HTTP7230Repetition extends ABNFBaseParser<ABNF, ABNF> {
+public class HTTP7230Repetition extends ABNFBuildParser<ABNF, Object> {
 
-    public HTTP7230Repetition(ABNF abnf, ABNFReg reg, ABNFReg base) {
-        super(abnf, reg, base, "element");
+    public HTTP7230Repetition(ABNF rule, ABNFReg reg, ABNFReg base) {
+        super(rule, reg, base, "rep-list","element");
     }
 
     /**
@@ -22,25 +21,17 @@ public class HTTP7230Repetition extends ABNFBaseParser<ABNF, ABNF> {
      * n>=1 , m>1 に対し
      * <n>#<m>element -> element <n-1>*<m-1>( OWS "," OWS element )
      *
-     * @param pac
+     * @param ret
      * @return
      */
     @Override
-    public ABNF parse(FrontPacket pac) {
-        inst();
-        
-        ABNFParser<? extends ABNF> elem = subs[0];
-//        System.out.println("rep: " + strd(pac));
-        ABNF.C<Object> ret = rule.find(pac, strp(HTTP7230.repList), elem);
-        if (ret == null) {
-            return null;
-        }
+    protected ABNF build(ABNF.C<Object> ret) {        
         List<Object> rep = ret.get(HTTP7230.repList);
-        ABNF element = (ABNF) ret.get(elem.getBNF()).get(0);
+        ABNF element = (ABNF) ret.get("element").get(0);
 //        System.out.println("ee;:" + strd(element));
         //ABNF ele = subs[0].parse(element);
         if (rep != null) {
-            return repeat((String) rep.get(0), element);
+            return repeat(str((FrontPacket)rep.get(0)), element);
         }
         return element;
     }
