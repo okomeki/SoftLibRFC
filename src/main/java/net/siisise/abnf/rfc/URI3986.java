@@ -9,6 +9,9 @@ import net.siisise.abnf.parser5234.ABNF5234;
  *
  * https://triple-underscore.github.io/rfc-others/RFC3986-ja.html
  *
+ * Living Standard ではない
+ * https://triple-underscore.github.io/URL-ja.html
+ *
  * @see net.siisise.abnf.rfc.URI6874
  */
 public class URI3986 {

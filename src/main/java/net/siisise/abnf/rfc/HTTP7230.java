@@ -1,6 +1,7 @@
 package net.siisise.abnf.rfc;
 
 import net.siisise.abnf.ABNF;
+import net.siisise.abnf.ABNFCC;
 import net.siisise.abnf.ABNFReg;
 import net.siisise.abnf.parser5234.ABNF5234;
 import net.siisise.abnf.parser5234.Repetition;
@@ -17,7 +18,7 @@ import net.siisise.abnf.parser5234.Repetition;
  */
 public class HTTP7230 {
 
-    static final ABNFReg PAR = new ABNFReg(ABNF5234.copyREG(), ABNF5234.REG);
+    static final ABNFCC PAR = new ABNFCC(ABNF5234.copyREG(), ABNF5234.REG);
 
     // Section 7 ABNF Parsetの拡張実験
     static final ABNF repList = PAR.rule("rep-list", ABNF5234.DIGIT.x().pl(ABNF.bin('#'), ABNF5234.DIGIT.x()).or(ABNF5234.DIGIT.ix()));
@@ -28,7 +29,7 @@ public class HTTP7230 {
     public static final ABNFReg REG = new ABNFReg(URI3986.REG, PAR);
 
     static final ABNF URIreference = URI3986.URIreference;
-    static final ABNF absoluteURI = REG.rule("absolute-URI",URI3986.absoluteURI);
+    static final ABNF absoluteURI = REG.rule("absolute-URI", URI3986.absoluteURI);
     static final ABNF relativePart = URI3986.relativePart;
     static final ABNF scheme = URI3986.scheme;
     static final ABNF authority = URI3986.authority;
@@ -61,15 +62,15 @@ public class HTTP7230 {
     static final ABNF comment = REG.rule("comment", "\"(\" *( ctext / quoted-pair / comment ) \")\"");
 
     // 5.3.1.
-    static final ABNF originForm = REG.rule("origin-form","absolute-path [ \"?\" query ]");
+    static final ABNF originForm = REG.rule("origin-form", "absolute-path [ \"?\" query ]");
     // 5.3.2.
-    static final ABNF absoluteForm = REG.rule("absolute-form",absoluteURI);
+    static final ABNF absoluteForm = REG.rule("absolute-form", absoluteURI);
     // 5.3.3.
-    static final ABNF authorityForm = REG.rule("authorityForm",authority);
+    static final ABNF authorityForm = REG.rule("authorityForm", authority);
     // 5.3.4.
-    static final ABNF asteriskForm = REG.rule("asteriskForm",ABNF.bin("*"));
+    static final ABNF asteriskForm = REG.rule("asteriskForm", ABNF.bin("*"));
     // 5.3.
-    static final ABNF requestTarget = REG.rule("request-target",originForm.or(absoluteForm,authorityForm,asteriskForm));
+    static final ABNF requestTarget = REG.rule("request-target", originForm.or(absoluteForm, authorityForm, asteriskForm));
 
     // 3.1. start-line
     // 3.1.1. request-line
@@ -130,20 +131,20 @@ public class HTTP7230 {
     static final ABNF tCodings = REG.rule("t-codings", "\"trailers\" / ( transfer-coding [ t-renking ] )");
     public static final ABNF TE = REG.rule("TE", "#t-codings");
     // 4.4.
-    public static final ABNF Trailer = REG.rule("Trailer","1#field-name");
+    public static final ABNF Trailer = REG.rule("Trailer", "1#field-name");
     // 5.4.
-    public static final ABNF Host = REG.rule("Host","uri-host [ \":\" port ]");
+    public static final ABNF Host = REG.rule("Host", "uri-host [ \":\" port ]");
     // 5.7.
-    static final ABNF receivedProtocol = REG.rule("received-protocol","[ protocol-name \"/\" ] protocol-version");
-    static final ABNF pseudonym = REG.rule("pseudonym",token); // pseudo + anonymous  疑似匿名 (仮名)
-    static final ABNF receivedBy = REG.rule("received-by","( uri-host [ \":\" port ] ) / pseudonym");
-    public static final ABNF Via = REG.rule("Via","1#( received-protocol RWS received-by [ RWS comment ] )");
+    static final ABNF receivedProtocol = REG.rule("received-protocol", "[ protocol-name \"/\" ] protocol-version");
+    static final ABNF pseudonym = REG.rule("pseudonym", token); // pseudo + anonymous  疑似匿名 (仮名)
+    static final ABNF receivedBy = REG.rule("received-by", "( uri-host [ \":\" port ] ) / pseudonym");
+    public static final ABNF Via = REG.rule("Via", "1#( received-protocol RWS received-by [ RWS comment ] )");
     // 6.1.
-    static final ABNF connectionOption = REG.rule("connection-option",token);    
-    public static final ABNF Connection = REG.rule("Connection","1#connection-option");
+    static final ABNF connectionOption = REG.rule("connection-option", token);
+    public static final ABNF Connection = REG.rule("Connection", "1#connection-option");
     // 6.7.
-    static final ABNF protocolName = REG.rule("protocol-name",token);
-    static final ABNF protocolVersion = REG.rule("protocol-version",token);
-    static final ABNF protocol = REG.rule("protocol","protocol-name [\"/\" protocol-version]");
-    public static final ABNF Upgrade = REG.rule("Upgrade","1#protocol");
+    static final ABNF protocolName = REG.rule("protocol-name", token);
+    static final ABNF protocolVersion = REG.rule("protocol-version", token);
+    static final ABNF protocol = REG.rule("protocol", "protocol-name [\"/\" protocol-version]");
+    public static final ABNF Upgrade = REG.rule("Upgrade", "1#protocol");
 }

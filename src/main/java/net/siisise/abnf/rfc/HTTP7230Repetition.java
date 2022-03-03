@@ -2,17 +2,19 @@ package net.siisise.abnf.rfc;
 
 import java.util.List;
 import net.siisise.abnf.ABNF;
-import net.siisise.abnf.ABNFReg;
-import net.siisise.abnf.parser.ABNFBuildParser;
+import net.siisise.bnf.BNF;
+import net.siisise.bnf.BNFReg;
+import net.siisise.bnf.parser.BNFBuildParser;
 import net.siisise.io.FrontPacket;
 
 /**
  * RFC 7230 7.
+ * ABNFを拡張する
  */
-public class HTTP7230Repetition extends ABNFBuildParser<ABNF, Object> {
+public class HTTP7230Repetition extends BNFBuildParser<ABNF, Object> {
 
-    public HTTP7230Repetition(ABNF rule, ABNFReg reg, ABNFReg base) {
-        super(rule, reg, base, "rep-list","element");
+    public HTTP7230Repetition(BNF rule, BNFReg base) {
+        super(rule, base, "rep-list","element");
     }
 
     /**

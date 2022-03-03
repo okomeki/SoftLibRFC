@@ -1,16 +1,16 @@
 package net.siisise.abnf.rfc;
 
-import net.siisise.abnf.ABNF;
-import net.siisise.abnf.ABNFReg;
-import net.siisise.abnf.parser.ABNFSelect;
+import net.siisise.bnf.BNF;
+import net.siisise.bnf.BNFReg;
+import net.siisise.bnf.parser.BNFSelect;
 
 /**
  *
  */
-public class HTTP7230RepetitionSelect extends ABNFSelect {
+public class HTTP7230RepetitionSelect extends BNFSelect {
 
-    public HTTP7230RepetitionSelect(ABNF abnf, ABNFReg reg, ABNFReg base) {
-        super(abnf, reg, base, "httprepetition", "orgrepetition");
+    public HTTP7230RepetitionSelect(BNF abnf, BNFReg base) {
+        super(abnf, base, "httprepetition", "orgrepetition");
     }
 
 }
