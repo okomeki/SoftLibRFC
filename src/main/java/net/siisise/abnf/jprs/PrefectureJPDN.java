@@ -13,7 +13,7 @@ import net.siisise.abnf.ABNFReg;
  */
 public class PrefectureJPDN {
 
-    public static ABNFReg REG = new ABNFReg();
+    public static final ABNFReg REG = new ABNFReg();
 
     public static ABNF prefectureJPDN;
     

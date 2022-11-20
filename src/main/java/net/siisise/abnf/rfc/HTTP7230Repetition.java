@@ -27,7 +27,7 @@ public class HTTP7230Repetition extends BNFBuildParser<ABNF, Object> {
      * @return
      */
     @Override
-    protected ABNF build(ABNF.C<Object> ret) {        
+    protected ABNF build(ABNF.Match<Object> ret) {        
         List<Object> rep = ret.get(HTTP7230.repList);
         ABNF element = (ABNF) ret.get("element").get(0);
 //        System.out.println("ee;:" + strd(element));

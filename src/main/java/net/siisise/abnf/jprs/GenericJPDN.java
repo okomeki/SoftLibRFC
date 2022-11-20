@@ -12,7 +12,7 @@ public class GenericJPDN {
 
     public static final ABNFReg REG = new ABNFReg();
 
-    static final ABNF JA_char = REG.rule("JA-char", ABNF.range(0x3041,0x3093).or(
+    static final ABNF JA_char = REG.rule("JA-char", ABNF.range(0x3041,0x3093).or1(
             ABNF.range(0x30A1, 0x30F6),ABNF.range(0x30FB,0x30FE),REG.elements( 
             "%x3005 / %x3006 / %x3007 / %x309D / %x309E /"
             + "	%x4E00 / %x4E01 / %x4E03 / %x4E07 / %x4E08 / %x4E09 /"
@@ -810,23 +810,22 @@ public class GenericJPDN {
             + "	%x9F4B / %x9F4E / %x9F4F / %x9F52 / %x9F54 / %x9F5F / %x9F60 / %x9F61 /"
             + "	%x9F62 / %x9F63 / %x9F66 / %x9F67 / %x9F6A / %x9F6C / %x9F72 / %x9F76 /"
             + "	%x9F77 / %x9F8D / %x9F95 / %x9F9C / %x9F9D / %x9FA0")));
-    static ABNF ALNUM = REG.rule("ALNUM", ABNF5234.ALPHA.or(ABNF5234.DIGIT));
-    static ABNF ALNUM_HYPHEN = REG.rule("ALNUM-HYPHEN", ALNUM.or(ABNF.bin('-')));
+    static ABNF ALNUM = REG.rule("ALNUM", ABNF5234.ALPHA.or1(ABNF5234.DIGIT));
+    static ABNF ALNUM_HYPHEN = REG.rule("ALNUM-HYPHEN", ALNUM.or1(ABNF.bin('-')));
 //    static ABNF JAlabel = REG.rule("JA-label",
 //            "JA-char"
 //            + " / JA-char *( JA-char / ALNUM-HYPHEN ) (JA-char / ALNUM)"
 //            + " / ALNUM *( JA-char / ALNUM-HYPHEN ) JA-char *( JA-char / ALNUM-HYPHEN ) ALNUM"
 //            + " / ALNUM *( JA-char / ALNUM-HYPHEN ) JA-char"
 //    );
-    static ABNF JAlabel = REG.rule("JA-label",
-            JA_char.pl(JA_char.or(ALNUM_HYPHEN).x().plm(JA_char.or(ALNUM)).c()).or(
-                    ALNUM.plu(JA_char.or(ALNUM_HYPHEN).x(), JA_char, JA_char.or(ALNUM_HYPHEN).x().plm(ALNUM).c()))
+    static final ABNF JAlabel = REG.rule("JA-label",
+            JA_char.pl(JA_char.or1(ALNUM_HYPHEN).x().plm(JA_char.or1(ALNUM)).c()).or(
+                    ALNUM.plu(JA_char.or1(ALNUM_HYPHEN).x(), JA_char, JA_char.or(ALNUM_HYPHEN).x().plm(ALNUM).c()))
     );
-    static ABNF MIDDLE_DOT = REG.rule("MIDDLE-DOT", ABNF.bin(0x30fb));
-    static ABNF EXCEPTION_char = REG.rule("EXCEPTION-char", ABNF.bin(0x3006).or(ABNF.bin(0x30fc), MIDDLE_DOT));
-    static ABNF EXCEPTING_STRING = REG.rule("EXCEPTION-STRING", EXCEPTION_char.or(ALNUM_HYPHEN).x().pl(MIDDLE_DOT, EXCEPTION_char.or(ALNUM_HYPHEN).x()));
-    static ABNF ASCIIlabel = REG.rule("ASCII-label", ALNUM.pl(ALNUM_HYPHEN.x(1, 61), ALNUM));
-    static ABNF label = REG.rule("label", ASCIIlabel.or(JAlabel));
-    public static ABNF genericJPDN = REG.rule("generic-JPDN", label.pl(ABNF.text(".JP")));
-
+    static final ABNF MIDDLE_DOT = REG.rule("MIDDLE-DOT", ABNF.bin(0x30fb));
+    static final ABNF EXCEPTION_char = REG.rule("EXCEPTION-char", ABNF.bin(0x3006).or1(ABNF.bin(0x30fc), MIDDLE_DOT));
+    static final ABNF EXCEPTING_STRING = REG.rule("EXCEPTION-STRING", EXCEPTION_char.or1(ALNUM_HYPHEN).x().pl(MIDDLE_DOT, EXCEPTION_char.or1(ALNUM_HYPHEN).x()));
+    static final ABNF ASCIIlabel = REG.rule("ASCII-label", ALNUM.pl(ALNUM_HYPHEN.x(1, 61), ALNUM));
+    static final ABNF label = REG.rule("label", ASCIIlabel.or(JAlabel));
+    public static final ABNF genericJPDN = REG.rule("generic-JPDN", label.pl(ABNF.text(".JP")));
 }

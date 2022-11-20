@@ -11,10 +11,11 @@ import net.siisise.abnf.parser5234.Repetition;
  * Section 7の拡張あり
  * RFC 6874 取り込んでない?
  * obsなし版も作りたい?
+ * 
+ * @deprecated RFC 9110
  *
  * @see https://tools.ietf.org/html/rfc7230 Section 7
  * @see URI3986
- * @author okome
  */
 public class HTTP7230 {
 
@@ -51,10 +52,10 @@ public class HTTP7230 {
 
     // 3.2.6.
     static final ABNF tchar = REG.rule("tchar", ABNF.list("!#$%&'*+-.^_`|~").or(ABNF5234.DIGIT, ABNF5234.ALPHA));
-    static final ABNF token = REG.rule("token", "1*tchar");
+    static final ABNF token = REG.rule("token", tchar.ix());
 
     static final ABNF quotedPair = REG.rule("quoted-pair", "\"\\\" ( HTAB / SP / VCHAR / obs-text )");
-    static final ABNF obsText = REG.rule("obs-text", "%x80-FF");
+    static final ABNF obsText = REG.rule("obs-text", ABNF.range(0x80,0xff));
     static final ABNF qdtext = REG.rule("qdtext", "HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text");
     static final ABNF quotedString = REG.rule("quoted-string", "DQUOTE *( qdtext / quoted-pair ) DQUOTE");
 
