@@ -9,6 +9,7 @@ import net.siisise.io.FrontPacket;
 
 /**
  * RFC 7230 7.
+ * RFC 9110 5.6.1.1. もおなじ 5.6.1.2. 未実装かも
  * ABNFを拡張する
  */
 public class HTTP7230Repetition extends BNFBuildParser<ABNF, Object> {
@@ -18,10 +19,10 @@ public class HTTP7230Repetition extends BNFBuildParser<ABNF, Object> {
     }
 
     /**
-     * 1#element -> element *( OWS "," OWS element )
-     * #element -> [ 1#element ] -> [ element *( OWS "," OWS element ) ]
-     * n>=1 , m>1 に対し
-     * <n>#<m>element -> element <n-1>*<m-1>( OWS "," OWS element )
+     * 1#element -&lt; element *( OWS "," OWS element )
+     * #element -&lt; [ 1#element ] -&lt; [ element *( OWS "," OWS element ) ]
+     * n&gt;=1 , m&gt;1 に対し
+     * &gt;n&lt;#&gt;m&lt;element -&lt; element &gt;n-1&lt;*&gt;m-1&lt;( OWS "," OWS element )
      *
      * @param ret
      * @return

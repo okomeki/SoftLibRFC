@@ -7,7 +7,7 @@ import net.siisise.abnf.parser5234.ABNF5234;
 /**
  * UUIDのABNF.
  * 
- * @see https://tools.ietf.org/html/rfc4122
+ * https://tools.ietf.org/html/rfc4122
  */
 public class UUID4122 {
     public static final ABNFReg REG = new ABNFReg();

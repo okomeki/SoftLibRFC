@@ -14,24 +14,24 @@ public class URI2396 {
 
     static final ABNF lowalpha = REG.rule("lowalpha", ABNF.range('a', 'z'));
     static final ABNF upalpha = REG.rule("upalpha", ABNF.range('A', 'Z'));
-    static final ABNF alpha = REG.rule("alpha", lowalpha.or(upalpha)); // ABNF5234.ALPHA
+    static final ABNF alpha = REG.rule("alpha", lowalpha.or1(upalpha)); // ABNF5234.ALPHA
     static final ABNF digit = REG.rule("digit", ABNF5234.DIGIT);
-    static final ABNF alphanum = REG.rule("alphanum", alpha.or(digit));
+    static final ABNF alphanum = REG.rule("alphanum", alpha.or1(digit));
 
-    static final ABNF reserved = REG.rule("reserved", ABNF.list(";/?:@&=+$,"));
+    static final ABNF reserved = REG.rule("reserved", ABNF.list(";/?:@&=+$,"));  // RFC 2732 で更新
     static final ABNF mark = REG.rule("mark", ABNF.list("-_.!~*'()"));
-    static final ABNF unreserved = REG.rule("unreserved", alphanum.or(mark));
-    static final ABNF hex = REG.rule("hex", digit.or(ABNF.range('A', 'F').or(ABNF.range('a', 'f'))));
+    static final ABNF unreserved = REG.rule("unreserved", alphanum.or1(mark));
+    static final ABNF hex = REG.rule("hex", digit.or1(ABNF.range('A', 'F'),ABNF.range('a', 'f')));
     static final ABNF escaped = REG.rule("escaped", ABNF.bin('%').pl(hex, hex));
-    static final ABNF uric = REG.rule("uric", reserved.or(unreserved, escaped));
+    static final ABNF uric = REG.rule("uric", REG.ref("reserved").or1(unreserved, escaped));
     // 2.4.3. 排除される US-ASCII文字
     static final ABNF control = REG.rule("control", ABNF5234.CTL);
     static final ABNF space = REG.rule("space", ABNF.bin(0x20));
     static final ABNF delims = REG.rule("delims", ABNF.list("<>#%\""));
-    static final ABNF unwise = REG.rule("unwise", ABNF.list("()|\\^[]`"));
+    static final ABNF unwise = REG.rule("unwise", ABNF.list("()|\\^[]`")); // RFC 2732 で更新
 
     static final ABNF query = REG.rule("query", uric.x());
-    static final ABNF pchar = REG.rule("pchar", unreserved.or(escaped, ABNF.list(":@&=+$,")));
+    static final ABNF pchar = REG.rule("pchar", unreserved.or1(escaped, ABNF.list(":@&=+$,")));
     static final ABNF param = REG.rule("param", pchar.x());
     static final ABNF segment = REG.rule("segment", pchar.x().pl(ABNF.bin(';').pl(param).x()));
     static final ABNF pathSegments = REG.rule("path-segments", segment.pl(ABNF.bin('/').pl(segment).x()));
@@ -47,14 +47,14 @@ public class URI2396 {
 //    static final ABNF domainlabel = REG.rule("domainlabel",   "alphanum *( *( \"-\" ) alphanum )"); // pl用に改変してみた記述
     static final ABNF domainlabel = REG.rule("domainlabel", alphanum.pl(ABNF.bin('-').x().pl(alphanum).x())); // pl用
     static final ABNF hostname = REG.rule("hostname", "*( domainlabel \".\" ) toplabel [ \".\" ]");
-    static final ABNF host = REG.rule("host", hostname.or(IPv4address));
+    static final ABNF host = REG.rule("host", hostname.or(IPv4address)); // RFC 2732 で更新
     static final ABNF hostport = REG.rule("hostport", "host [ \":\" port ]");
-    static final ABNF userinfo = REG.rule("userinfo", unreserved.or(escaped, ABNF.list(";:&=+$,")));
+    static final ABNF userinfo = REG.rule("userinfo", unreserved.or1(escaped, ABNF.binlist(";:&=+$,")));
     static final ABNF server = REG.rule("server", "[ [ userinfo \"@\" ] hostport ]");
-    static final ABNF regName = REG.rule("reg-name", unreserved.or(escaped, ABNF.list("$,;:@&=+")).ix());
+    static final ABNF regName = REG.rule("reg-name", unreserved.or1(escaped, ABNF.list("$,;:@&=+")).ix());
     static final ABNF authority = REG.rule("authority", server.or(regName));
     static final ABNF scheme = REG.rule("scheme", "alpha *( alpha / digit / \"+\" / \"-\" / \".\" )");
-    static final ABNF uricNoSlash = REG.rule("uric-no-slash", unreserved.or(escaped, ABNF.list(";?:@&=+$,")));
+    static final ABNF uricNoSlash = REG.rule("uric-no-slash", unreserved.or1(escaped, ABNF.binlist(";?:@&=+$,")));
     static final ABNF opaquePart = REG.rule("opaque-part", uricNoSlash.pl(uric.x()));
     static final ABNF absPath = REG.rule("abs-path", ABNF.bin('/').pl(pathSegments));
     static final ABNF path = REG.rule("path", absPath.or(opaquePart).c());

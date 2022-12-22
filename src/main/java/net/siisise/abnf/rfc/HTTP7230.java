@@ -12,20 +12,20 @@ import net.siisise.abnf.parser5234.Repetition;
  * RFC 6874 取り込んでない?
  * obsなし版も作りたい?
  * 
- * @deprecated RFC 9110
+ * @deprecated RFC 9110,9112
  *
- * @see https://tools.ietf.org/html/rfc7230 Section 7
- * @see URI3986
+ * https://tools.ietf.org/html/rfc7230 Section 7
+ * URI3986
  */
 public class HTTP7230 {
 
     static final ABNFCC PAR = new ABNFCC(ABNF5234.copyREG(), ABNF5234.REG);
 
-    // Section 7 ABNF Parsetの拡張実験
+    // Section 7 ABNF Parserの拡張
     static final ABNF repList = PAR.rule("rep-list", ABNF5234.DIGIT.x().pl(ABNF.bin('#'), ABNF5234.DIGIT.x()).or(ABNF5234.DIGIT.ix()));
     static final ABNF orgrepetition = PAR.rule("orgrepetition", Repetition.class, PAR.href("repetition")); // 改名
     static final ABNF httprepetition = PAR.rule("httprepetition", HTTP7230Repetition.class, repList.pl(PAR.ref("element")));
-    static final ABNF repetition = PAR.rule("repetition", HTTP7230RepetitionSelect.class, "orgrepetition / httprepetition");
+    static final ABNF repetition = PAR.rule("repetition", HTTP7230RepetitionSelect.class, orgrepetition.or1(httprepetition));
 
     public static final ABNFReg REG = new ABNFReg(URI3986.REG, PAR);
 
@@ -41,17 +41,19 @@ public class HTTP7230 {
     static final ABNF query = URI3986.query;
     static final ABNF fragment = URI3986.fragment;
 
+    // 2.3.
+    // HTTP9110 2.5.
     static final ABNF HTTPname = REG.rule("HTTP-name", "%x48.54.54.50");
-    static final ABNF HTTPversion = REG.rule("HTTP-version", "HTTP-name \"/\" DIGIT \".\" DIGIT");
+    static final ABNF HTTPversion = REG.rule("HTTP-version", HTTPname.pl(ABNF.bin('/'),ABNF5234.DIGIT,ABNF.bin('.'), ABNF5234.DIGIT));
 
-    static final ABNF absolitePath = REG.rule("absolute-path", "1*( \"/\" segment )");
+    static final ABNF absolitePath = REG.rule("absolute-path", ABNF.bin('/').pl(segment).ix());
     static final ABNF partialURI = REG.rule("partial-URI", relativePart.pl(ABNF.bin("?").pl(URI3986.query).c()));
 
     static final ABNF httpURI = REG.rule("http-URI", ABNF.text("http:").pl(ABNF.text("//"), URI3986.authority, URI3986.pathAbempty, ABNF.text("?").pl(URI3986.query).c()));
     static final ABNF httpsURI = REG.rule("https-URI", "\"https:\" \"//\" authority path-abempty [ \"?\" query ]");
 
     // 3.2.6.
-    static final ABNF tchar = REG.rule("tchar", ABNF.list("!#$%&'*+-.^_`|~").or(ABNF5234.DIGIT, ABNF5234.ALPHA));
+    static final ABNF tchar = REG.rule("tchar", ABNF.list("!#$%&'*+-.^_`|~").or1(ABNF5234.DIGIT, ABNF5234.ALPHA));
     static final ABNF token = REG.rule("token", tchar.ix());
 
     static final ABNF quotedPair = REG.rule("quoted-pair", "\"\\\" ( HTAB / SP / VCHAR / obs-text )");
@@ -76,26 +78,26 @@ public class HTTP7230 {
     // 3.1. start-line
     // 3.1.1. request-line
     static final ABNF method = REG.rule("method", token);
-    static final ABNF requestLine = REG.rule("request-line", "method SP request-target SP HTTP-version CRLF");
+    public static final ABNF requestLine = REG.rule("request-line", method.pl(ABNF5234.SP,requestTarget,ABNF5234.SP,HTTPversion,ABNF5234.CRLF));
     // 3.1.2. status-line
-    static final ABNF statusCode = REG.rule("status-code", "3DIGIT");
-    static final ABNF reasonPhrase = REG.rule("reason-phrase", "*( HTAB / SP / VCHAR / obs-text )");
-    static final ABNF statusLine = REG.rule("status-line", "HTTP-version SP status-code SP reason-phrase CRLF");
+    static final ABNF statusCode = REG.rule("status-code", ABNF5234.DIGIT.x(3));
+    static final ABNF reasonPhrase = REG.rule("reason-phrase", ABNF5234.HTAB.or1(ABNF5234.SP,ABNF5234.VCHAR,obsText).x());
+    static final ABNF statusLine = REG.rule("status-line", HTTPversion.pl(ABNF5234.SP, statusCode, ABNF5234.SP, reasonPhrase, ABNF5234.CRLF));
     // 3.1.
-    static final ABNF startLine = REG.rule("start-line", requestLine.or(statusLine));
+    public static final ABNF startLine = REG.rule("start-line", requestLine.or(statusLine));
 
     // 3.2. header-field
     // 3.2.3. 空白
-    static final ABNF OWS = REG.rule("OWS", "*( SP / HTAB )");
-    static final ABNF RWS = REG.rule("RWS", "1*( SP / HTAB )");
+    static final ABNF OWS = REG.rule("OWS", ABNF5234.SP.or1(ABNF5234.HTAB).x());
+    static final ABNF RWS = REG.rule("RWS", ABNF5234.SP.or1(ABNF5234.HTAB).ix());
     static final ABNF BWS = REG.rule("BWS", OWS);
 
     static final ABNF fieldName = REG.rule("field-name", token);
-    static final ABNF obsFold = REG.rule("obs-fold", "CRLF 1*( SP / HTAB )");
-    static final ABNF fieldVchar = REG.rule("field-vchar", "VCHAR / obs-text");
+    static final ABNF obsFold = REG.rule("obs-fold", ABNF5234.CRLF.pl(ABNF5234.SP.or1(ABNF5234.HTAB).ix()));
+    static final ABNF fieldVchar = REG.rule("field-vchar", ABNF5234.VCHAR.or1(obsText));
     static final ABNF fieldContent = REG.rule("field-content", "field-vchar [ 1*( SP / HTAB ) field-vchar ]");
-    static final ABNF fieldValue = REG.rule("field-value", "*( field-content / obs-fold )");
-    static final ABNF headerField = REG.rule("header-field", "field-name \":\" OWS field-value OWS");
+    static final ABNF fieldValue = REG.rule("field-value", fieldContent.or1(obsFold).x());
+    public static final ABNF headerField = REG.rule("header-field", "field-name \":\" OWS field-value OWS");
 
     // 4. 転送符号法
     static final ABNF transferParameter = REG.rule("transfer-parameter", "token BWS \"=\" BWS ( token / quoted-string )");

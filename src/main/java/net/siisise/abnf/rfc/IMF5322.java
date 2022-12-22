@@ -22,28 +22,28 @@ public class IMF5322 {
     static final ABNF quotedPair = REG.rule("quoted-pair", "(\"\\\" (VCHAR / WSP)) / obs-qp");
     // 3.2.2.
     static final ABNF FWS = REG.rule("FWS", "([*WSP CRLF] 1*WSP) / obs-FWS");
-    static final ABNF ctext = REG.rule("ctext", "%d33-39 / %d42-91 / %d93-126 / obs-ctext");
+    static final ABNF ctext = REG.rule("ctext", ABNF.range(33,39).or1(ABNF.range(42,91), ABNF.range(93,126), REG.ref("obs-ctext")));
     static final ABNF comment = REG.rule("comment", "\"(\" *([FWS] ccontent) [FWS] \")\"");
-    static final ABNF ccontent = REG.rule("ccontent", ctext.or(quotedPair, comment));
+    static final ABNF ccontent = REG.rule("ccontent", ctext.or1(quotedPair, comment));
     static final ABNF CFWS = REG.rule("CFWS", "(1*([FWS] comment) [FWS]) / FWS");
     // 3.2.3. Atom
-    static final ABNF atext = REG.rule("atext", ABNF5234.ALPHA.or(ABNF5234.DIGIT, ABNF.list("!#$%&'*+-/=?^_`{|}~")));
+    static final ABNF atext = REG.rule("atext", ABNF5234.ALPHA.or1(ABNF5234.DIGIT, ABNF.list("!#$%&'*+-/=?^_`{|}~")));
     static final ABNF atom = REG.rule("atom", CFWS.c().pl(atext.ix(),CFWS.c()));
     static final ABNF dotAtomText = REG.rule("dot-atom-text", "1*atext *(\".\" 1*atext)");
     static final ABNF dotAtom = REG.rule("dot-atom", "[CFWS] dot-atom-text [CFWS]");
-    static final ABNF specials = REG.rule("specials", ABNF.list("()<>[]:;@\\,.").or(ABNF5234.DQUOTE));
+    static final ABNF specials = REG.rule("specials", ABNF.list("()<>[]:;@\\,.").or1(ABNF5234.DQUOTE));
 
     // 3.2.4. Quoted Strings
 //    static ABNF qtext = REG.rule("qtext", "%d33 / %d35-91 / %d93-126");
-    static final ABNF qtext = REG.rule("qtext", "%d33 / %d35-91 / %d93-126 / obs-qtext");
-    static final ABNF qcontent = REG.rule("qcontent", qtext.or(quotedPair));
+    static final ABNF qtext = REG.rule("qtext", ABNF.bin(33).or1(ABNF.range(35,91), ABNF.range(93,126), REG.ref("obs-qtext")));
+    static final ABNF qcontent = REG.rule("qcontent", qtext.or1(quotedPair));
     static final ABNF quotedString = REG.rule("quoted-string", "[CFWS] DQUOTE *([FWS] qcontent) [FWS] DQUOTE [CFWS]");
 
     // 4.1. Miscellaneous Obsolete Tokens
     static final ABNF obsNoWsCtl = REG.rule("obs-NO-WS-CTL", "%d1-8 / %d11 / %d12 / %d14-31 / %d127");
     static final ABNF obsCtext = REG.rule("obs-ctext", obsNoWsCtl);
     static final ABNF obsQtext = REG.rule("obs-qtext", obsNoWsCtl);
-    static final ABNF obsUtext = REG.rule("obs-utext", ABNF.bin(0x0).or(obsNoWsCtl, ABNF5234.VCHAR));
+    static final ABNF obsUtext = REG.rule("obs-utext", ABNF.bin(0x0).or1(obsNoWsCtl, ABNF5234.VCHAR));
     static final ABNF obsQp = REG.rule("obs-qp", "\"\\\" (%d0 / obs-NO-WS-CTL / LF / CR)");
     static final ABNF obsBody = REG.rule("obs-body", "*((*LF *CR *((%d0 / text) *LF *CR)) / CRLF)");
 //    static ABNF obsUnstruct = OBS.rule("obs-unstruct", "*((*LF *CR *(obs-utext *LF *CR)) / FWS)");
@@ -52,7 +52,7 @@ public class IMF5322 {
     static final ABNF obsPhraseList = REG.rule("obs-phrase-list", "[phrase / CFWS] *(\",\" [phrase / CFWS])");
 
     // 3.2.5. Miscellaneous Tokens
-    static final ABNF word = REG.rule("word", atom.or(quotedString));
+    static final ABNF word = REG.rule("word", atom.or1(quotedString));
 //    static ABNF phrase = REG.rule("phrase", word.ix());
     static final ABNF phrase = REG.rule("phrase", word.ix().or(obsPhrase));
 //    static ABNF unstructured = REG.rule("unstructured", "(*([FWS] VCHAR) *WSP)");
@@ -95,6 +95,41 @@ public class IMF5322 {
     public static final ABNF localPart = REG.rule("local-part", dotAtom.or(quotedString, obsLocalPart));
     public static final ABNF addrSpec = REG.rule("addr-spec", "local-part \"@\" domain");
 
+    // 3.6.8. Optional Fields
+    static final ABNF ftext = REG.rule("ftext", ABNF.range(33,57).or1(ABNF.range(59,126)));
+    static final ABNF fieldName = REG.rule("field-name", ftext.ix());
+    static final ABNF optionalField = REG.rule("optional-field", fieldName.pl(ABNF.bin(':'),unstructured, ABNF5234.CRLF));
+    // 3.6.5. Informational Fields
+    static final ABNF subject = REG.rule("subject", "\"Subject:\" unstructured CRLF");
+    static final ABNF comments = REG.rule("comments", "\"Comments:\" unstructured CRLF");
+    static final ABNF keywords = REG.rule("keywords", "\"Keywords:\" phrase *(\",\" phrase) CRLF");
+
+    static final ABNF resentDate = REG.rule("resent-date", "\"Resent-Date:\" date-time CRLF");
+    static final ABNF resentFrom = REG.rule("resent-from", "\"Resent-From:\" mailbox-list CRLF");
+    static final ABNF resentSender = REG.rule("resent-sender", "\"Resent-Sender:\" mailbox CRLF");
+    static final ABNF resentTo = REG.rule("resent-to", "\"Resent-To:\" address-list CRLF");
+    static final ABNF resentCc = REG.rule("resent-cc", "\"Resent-Cc:\" address-list CRLF");
+    static final ABNF resentBcc = REG.rule("resent-bcc", "\"Resent-Bcc:\" [address-list / CFWS] CRLF");
+    static final ABNF resentMsgId = REG.rule("resent-msg-id", "\"Resent-Message-ID:\" msg-id CRLF");
+    // 3.6.1. The Origination Date Field
+    static final ABNF origDate = REG.rule("orig-date", "\"Date:\" date-time CRLF");
+    // 3.6.2. Originator Fields
+    // from, sender, replyToは差し替え対象なので直利用しない方がいい
+    static final ABNF from = REG.rule("from", "\"From:\" mailbox-list CRLF");
+    static final ABNF sender = REG.rule("sender", "\"Sender:\" mailbox CRLF");
+    static final ABNF replyTo = REG.rule("reply-to", "\"Reply-To:\" address-list CRLF");
+    // 3.6.3. Destination Address Fields
+    static final ABNF to = REG.rule("to", "\"To:\" address-list CRLF");
+    static final ABNF cc = REG.rule("cc", "\"Cc:\" address-list CRLF");
+    static final ABNF bcc = REG.rule("bcc", "\"Bcc:\" [address-list / CFWS] CRLF");
+    // 3.6.4.
+    static final ABNF msgId = REG.rule("msg-id", "[CFWS] \"<\" id-left \"@\" id-right \">\" [CFWS]");
+    static final ABNF messageId = REG.rule("message-id", "\"Message-ID:\" msg-id CRLF");
+    static final ABNF inReplyTo = REG.rule("in-reply-to", "\"In-Reply-To:\" 1*msg-id CRLF");
+    static final ABNF references = REG.rule("references", "\"References:\" 1*msg-id CRLF");
+    static final ABNF idLeft = REG.rule("id-left", "dot-atom-text / obs-id-left");
+    static final ABNF idRight = REG.rule("id-right", "dot-atom-text / no-field-literal / obs-id-right");
+    static final ABNF noFoldLiteral = REG.rule("no-fold-literal", "\"[\" *dtext \"]\"");
     // 3.4. Address Specification
     static final ABNF angleAddr = REG.rule("angle-addr", "[CFWS] \"<\" addr-spec \">\" [CFWS] / obs-angle-addr");
     static final ABNF displayName = REG.rule("display-name", phrase);
@@ -105,12 +140,23 @@ public class IMF5322 {
     static final ABNF mailboxList = REG.rule("mailbox-list", "(mailbox *(\",\" mailbox)) / obs-mbox-list");
     static final ABNF addressList = REG.rule("address-list", "(address *(\",\" address)) / obs-addr-list");
     static final ABNF groupList = REG.rule("group-list", "mailbox-list / CFWS / obs-group-list");
+    // 3.6.7. Trace Fields
+    static final ABNF path = REG.rule("path", "angle-addr / ([CFWS] \"<\" [CFWS] \">\" [CFWS])");
+    static final ABNF Return = REG.rule("return", "\"Return-Path:\" path CRLF");
+    static final ABNF receivedToken = REG.rule("received-token", word.or(angleAddr, addrSpec, domain));
+//    static ABNF received = REG.rule("received", "\"Received:\" *received-token \";\" date-time CRLF");
+    static final ABNF received = REG.rule("received", "\"Received:\" [1*received-token / CFWS] \";\" date-time CRLF"); // Errata ID: 3979
+    static final ABNF trace = REG.rule("trace", "[return] 1*received");
+
     // 3.5. Overall Message Syntax
     static final ABNF text = REG.rule("text", "%d1-9 / %d11 / %d12 / %d14-127");
     static final ABNF body = REG.rule("body", "(*(*998text CRLF) *998text) / obs-body");
     public static final ABNF message = REG.rule("message", "(fields / obs-fields) [CRLF body]");
-    static final ABNF fields = REG.rule("fields", "*(trace"
-            + "  *optional-field /"
+
+    static final ABNF fields = REG.rule("fields", trace.pl(optionalField.x(), resentDate.or1(resentFrom,resentSender,resentTo,resentCc,resentBcc,resentMsgId).x(),
+            origDate.or1(from,sender,replyTo,to,cc,bcc,messageId,inReplyTo,references,subject,comments,keywords,optionalField).x()));
+/*
+    "*(trace  *optional-field /"
             + "  *(resent-date /"
             + "   resent-from /"
             + "   resent-sender /"
@@ -132,51 +178,7 @@ public class IMF5322 {
             + " comments /"
             + " keywords /"
             + " optional-field)");
-    // 3.6.1. The Origination Date Field
-    static final ABNF origDate = REG.rule("orig-date", "\"Date:\" date-time CRLF");
-    // 3.6.2. Originator Fields
-    // from, sender, replyToは差し替え対象なので直利用しない方がいい
-    static final ABNF from = REG.rule("from", "\"From:\" mailbox-list CRLF");
-    static final ABNF sender = REG.rule("sender", "\"Sender:\" mailbox CRLF");
-    static final ABNF replyTo = REG.rule("reply-to", "\"Reply-To:\" address-list CRLF");
-    // 3.6.3. Destination Address Fields
-    static final ABNF to = REG.rule("to", "\"To:\" address-list CRLF");
-    static final ABNF cc = REG.rule("cc", "\"Cc:\" address-list CRLF");
-    static final ABNF bcc = REG.rule("bcc", "\"Bcc:\" [address-list / CFWS] CRLF");
-    // 3.6.4.
-    static final ABNF msgId = REG.rule("msg-id", "[CFWS] \"<\" id-left \"@\" id-right \">\" [CFWS]");
-    static final ABNF messageId = REG.rule("message-id", "\"Message-ID:\" msg-id CRLF");
-    static final ABNF inReplyTo = REG.rule("in-reply-to", "\"In-Reply-To:\" 1*msg-id CRLF");
-    static final ABNF references = REG.rule("references", "\"References:\" 1*msg-id CRLF");
-    static final ABNF idLeft = REG.rule("id-left", "dot-atom-text / obs-id-left");
-    static final ABNF idRight = REG.rule("id-right", "dot-atom-text / no-field-literal / obs-id-right");
-    static final ABNF noFoldLiteral = REG.rule("no-fold-literal", "\"[\" *dtext \"]\"");
-
-
-    // 3.6.5. Informational Fields
-    static final ABNF subject = REG.rule("subject", "\"Subject:\" unstructured CRLF");
-    static final ABNF comments = REG.rule("comments", "\"Comments:\" unstructured CRLF");
-    static final ABNF keywords = REG.rule("keywords", "\"Keywords:\" phrase *(\",\" phrase) CRLF");
-
-    static final ABNF resentDate = REG.rule("resent-date", "\"Resent-Date:\" date-time CRLF");
-    static final ABNF resentFrom = REG.rule("resent-from", "\"Resent-From:\" mailbox-list CRLF");
-    static final ABNF resentSender = REG.rule("resent-sender", "\"Resent-Sender:\" mailbox CRLF");
-    static final ABNF resentTo = REG.rule("resent-to", "\"Resent-To:\" address-list CRLF");
-    static final ABNF resentCc = REG.rule("resent-cc", "\"Resent-Cc:\" address-list CRLF");
-    static final ABNF resentBcc = REG.rule("resent-bcc", "\"Resent-Bcc:\" [address-list / CFWS] CRLF");
-    static final ABNF resentMsgId = REG.rule("resent-msg-id", "\"Resent-Message-ID:\" msg-id CRLF");
-    // 3.6.7. Trace Fields
-    static final ABNF path = REG.rule("path", "angle-addr / ([CFWS] \"<\" [CFWS] \">\" [CFWS])");
-    static final ABNF Return = REG.rule("return", "\"Return-Path:\" path CRLF");
-    static final ABNF receivedToken = REG.rule("received-token", word.or(angleAddr, addrSpec, domain));
-//    static ABNF received = REG.rule("received", "\"Received:\" *received-token \";\" date-time CRLF");
-    static final ABNF received = REG.rule("received", "\"Received:\" [1*received-token / CFWS] \";\" date-time CRLF"); // Errata ID: 3979
-    static final ABNF trace = REG.rule("trace", "[return] 1*received");
-
-    // 3.6.8. Optional Fields
-    static final ABNF ftext = REG.rule("ftext", "%d33-57 / %d59-126");
-    static final ABNF fieldName = REG.rule("field-name", ftext.ix());
-    static final ABNF optionalFields = REG.rule("optional-field", "field-name \":\" unstructured CRLF");
+*/
     // 4. Obsolete Syntax
     // 4.2. Obsolete Folding White Space
 //    static ABNF obsFWS = OBS.rule("obs-FWS", "1*WSP *(CRLF 1*WSP)");

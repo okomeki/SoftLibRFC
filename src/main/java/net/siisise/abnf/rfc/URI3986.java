@@ -19,13 +19,13 @@ public class URI3986 {
     public static final ABNFReg REG = new ABNFReg(ABNF5234.BASE, ABNF5234.REG);
 
     static final ABNF pctEncoded = REG.rule("pct-encoded", ABNF.bin('%').pl(ABNF5234.HEXDIG, ABNF5234.HEXDIG));
-    static final ABNF genDelims = REG.rule("gen-delims", ABNF.list(":/?#[]@"));
-    static final ABNF subDelims = REG.rule("sub-delims", ABNF.list("!$&'()*+,;="));
-    static final ABNF reserved = REG.rule("reserved", genDelims.or(subDelims));
-    static final ABNF unreserved = REG.rule("unreserved", ABNF5234.ALPHA.or(ABNF5234.DIGIT, ABNF.list("-._~")));
+    static final ABNF genDelims = REG.rule("gen-delims", ABNF.binlist(":/?#[]@"));
+    static final ABNF subDelims = REG.rule("sub-delims", ABNF.binlist("!$&'()*+,;="));
+    public static final ABNF reserved = REG.rule("reserved", genDelims.or1(subDelims));
+    public static final ABNF unreserved = REG.rule("unreserved", ABNF5234.ALPHA.or1(ABNF5234.DIGIT, ABNF.list("-._~")));
 
-    static final ABNF scheme = REG.rule("scheme", ABNF5234.ALPHA.pl(ABNF5234.ALPHA.or(ABNF5234.DIGIT, ABNF.list("+-.")).x()));
-    static final ABNF userinfo = REG.rule("userinfo", unreserved.or(pctEncoded, subDelims, ABNF.bin(':')).x());
+    static final ABNF scheme = REG.rule("scheme", ABNF5234.ALPHA.pl(ABNF5234.ALPHA.or1(ABNF5234.DIGIT, ABNF.list("+-.")).x()));
+    static final ABNF userinfo = REG.rule("userinfo", unreserved.or1(pctEncoded, subDelims, ABNF.bin(':')).x());
     static final ABNF decOctet = REG.rule("dec-octet", "DIGIT "
             + "  / %x31-39 DIGIT "
             + "  / \"1\" 2DIGIT "
@@ -45,28 +45,28 @@ public class URI3986 {
             + " / [ *6( h16 \":\" ) h16 ] \"::\"");
     static final ABNF IPvFuture = REG.rule("IPvFuture", "\"v\" 1*HEXDIG \".\" 1*( unreserved / sub-delims / \":\" )");
     static final ABNF IPliteral = REG.rule("IP-literal", "\"[\" ( IPv6address / IPvFuture ) \"]\"");
-    static final ABNF regName = REG.rule("reg-name", unreserved.or(pctEncoded, subDelims).x());
+    static final ABNF regName = REG.rule("reg-name", unreserved.or1(pctEncoded, subDelims).x());
     static final ABNF host = REG.rule("host", IPliteral.or(IPv4address, regName));
     static final ABNF port = REG.rule("port", ABNF5234.DIGIT.x());
     static final ABNF authority = REG.rule("authority", "[ userinfo \"@\" ] host [ \":\" port ]");
-    static final ABNF pchar = REG.rule("pchar", "unreserved / pct-encoded / sub-delims / \":\" / \"@\"");
+    static final ABNF pchar = REG.rule("pchar", unreserved.or1(pctEncoded,subDelims, ABNF.bin(':'), ABNF.bin('@')));
     static final ABNF segment = REG.rule("segment", pchar.x());
     static final ABNF segmentNz = REG.rule("segment-nz", pchar.ix());
-    static final ABNF segmentNzNc = REG.rule("segment-nz-nc", "1*( unreserved / pct-encoded / sub-delims / \"@\" )");
-    static final ABNF pathAbempty = REG.rule("path-abempty", "*( \"/\" segment )");
+    static final ABNF segmentNzNc = REG.rule("segment-nz-nc", unreserved.or1(pctEncoded,subDelims,ABNF.bin('@')).ix());
+    static final ABNF pathAbempty = REG.rule("path-abempty", ABNF.bin('/').pl(segment).x());
     static final ABNF pathAbsolute = REG.rule("path-absolute", "\"/\" [ segment-nz *( \"/\" segment ) ]");
     static final ABNF pathNoscheme = REG.rule("path-noscheme", "segment-nz-nc *( \"/\" segment )");
     static final ABNF pathRootless = REG.rule("path-rootless", "segment-nz *( \"/\" segment )");
     static final ABNF pathEmpty = REG.rule("path-empty", pchar.x(0, 0));
-    static final ABNF hierPart = REG.rule("hier-part", "\"//\" authority path-abempty / path-absolute / path-rootless / path-empty");
+    static final ABNF hierPart = REG.rule("hier-part", ABNF.bin("//").pl(authority, pathAbempty).or( pathAbsolute, pathRootless, pathEmpty));
     static final ABNF path = REG.rule("path", pathAbempty.or(pathAbsolute, pathNoscheme, pathRootless, pathEmpty));
-    static final ABNF query = REG.rule("query", "*( pchar / \"/\" / \"?\" )");
-    static final ABNF fragment = REG.rule("fragment", "*( pchar / \"/\" / \"?\" )");
+    static final ABNF query = REG.rule("query", pchar.or1(ABNF.binlist("/?")).x());
+    static final ABNF fragment = REG.rule("fragment", pchar.or1(ABNF.binlist("/?")).x());
     public static final ABNF URI = REG.rule("URI", "scheme \":\" hier-part [ \"?\" query ] [ \"#\" fragment ]");
-
-    static final ABNF relativePart = REG.rule("relative-part", "\"//\" authority path-abempty / path-absolute"
-            + " / path-noscheme / path-empty");
-    public static final ABNF relativeRef = REG.rule("relative-ref", "relative-part [ \"?\" query ] [ \"#\" fragment ]");
+    // 4.2.
+    static final ABNF relativePart = REG.rule("relative-part", ABNF.bin("//").pl( authority, pathAbempty).or(pathAbsolute, pathNoscheme, pathEmpty));
+    public static final ABNF relativeRef = REG.rule("relative-ref", relativePart.pl(ABNF.bin('?').pl(query).c(), ABNF.bin('#').pl(fragment).c()));
     public static final ABNF URIreference = REG.rule("URI-reference", URI.or(relativeRef));
+    // 4.3.
     static final ABNF absoluteURI = REG.rule("absolute-URI", "scheme \":\" hier-part [ \"?\" query ]");
 }
