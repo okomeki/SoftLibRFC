@@ -4,7 +4,7 @@
     <groupId>net.siisise</groupId>
     <artifactId>softlib-rfc</artifactId>
     <name>SoftLibRFC</name>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
     <description>RFC ABNF Implements Collection</description>
     <url>https://github.com/okomeki/SoftLib</url>
@@ -92,7 +92,7 @@
         <dependency>
             <groupId>net.siisise</groupId>
             <artifactId>softlib-abnf</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
             <type>jar</type>
         </dependency>
         <dependency>

@@ -20,14 +20,13 @@ import net.siisise.abnf.ABNFReg;
 import net.siisise.abnf.parser5234.ABNF5234;
 
 /**
- * SIP用.
- * Updates: 3261
  *
- * @see IPv62373
  */
-public class IPv65954 {
+public class OAuthBearer6750 {
+    public static final ABNFReg REG = new ABNFReg(OAuth6749.REG);
+    // Section 2.1. Authorization Request Header Field
+    public static final ABNF b64token = REG.rule("b64token", ABNF5234.ALPHA.or1(ABNF5234.DIGIT,ABNF.bin("-._~+/")).ix().pl(ABNF.bin('=')));
+    public static final ABNF credentials = REG.rule("Bearer", ABNF.text("Bearer").pl(ABNF5234.SP.ix(), b64token));
 
-    static final ABNFReg REG = new ABNFReg(ABNF5234.BASE);
-
-    public static final ABNF IPv6reference = REG.rule("IPv6reference", ABNF.text("[").pl(URI3986.IPv6address, ABNF.text(']')));
+    
 }

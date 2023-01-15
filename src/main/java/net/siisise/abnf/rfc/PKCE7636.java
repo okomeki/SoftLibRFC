@@ -17,17 +17,19 @@ package net.siisise.abnf.rfc;
 
 import net.siisise.abnf.ABNF;
 import net.siisise.abnf.ABNFReg;
-import net.siisise.abnf.parser5234.ABNF5234;
 
 /**
- * SIP用.
- * Updates: 3261
- *
- * @see IPv62373
+ * RFC 7636 Proof Key for Code Exchange by OAuth Public Clients
  */
-public class IPv65954 {
+public class PKCE7636 {
+    public static final ABNFReg REG = new ABNFReg();
 
-    static final ABNFReg REG = new ABNFReg(ABNF5234.BASE);
-
-    public static final ABNF IPv6reference = REG.rule("IPv6reference", ABNF.text("[").pl(URI3986.IPv6address, ABNF.text(']')));
+    // 4.1. Client Creates a Code Verifier
+    static final ABNF ALPHA = REG.rule("ALPHA",ABNF.range(0x41, 0x5a).or1(ABNF.range(0x61,0x7a)));
+    static final ABNF DIGIT = REG.rule("DIGIT", ABNF.range(0x30, 0x39));
+    static final ABNF unreserved = REG.rule("unreserved", ALPHA.or1(DIGIT,ABNF.bin("-._~")));
+    public static final ABNF codeVerifier = REG.rule("code-verifier", unreserved.x(43,128));
+    
+    // 4.2. Client Creates the Code Challenge
+    public static final ABNF codeChallenge = REG.rule("code-challenge", unreserved.x(43,128));
 }

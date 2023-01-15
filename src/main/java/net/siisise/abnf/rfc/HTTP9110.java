@@ -1,3 +1,18 @@
+/*
+ * Copyright 2023 okome.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.siisise.abnf.rfc;
 
 import net.siisise.abnf.ABNF;
@@ -9,6 +24,7 @@ import net.siisise.abnf.parser5234.Repetition;
 /**
  * RFC 9110 HTTP Semantics
  * まだ RFC 7230 のコピペ気味
+ * RFC 7230, RFC 7235 など
  */
 public class HTTP9110 {
 
@@ -60,7 +76,7 @@ public class HTTP9110 {
     // Section 5.5. Field Values
     static final ABNF obsText = REG.rule("obs-text", ABNF.range(0x80, 0xff));
     static final ABNF fieldVchar = REG.rule("field-vchar", VCHAR.or1(obsText));
-    static final ABNF fieldContent = REG.rule("field-content", fieldVchar.pl(SP.or1(ABNF5234.HTAB, fieldVchar).ix().pl(fieldVchar).c()));
+    static final ABNF fieldContent = REG.rule("field-content", fieldVchar.pl(SP.or1(ABNF5234.HTAB, fieldVchar).ix().plu(fieldVchar).c()));
     static final ABNF fieldValue = REG.rule("field-value", fieldContent.x());
 
     // Section 5.6.3. Whitespace

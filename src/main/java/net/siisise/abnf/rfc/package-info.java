@@ -1,3 +1,4 @@
+/*
 とりあえずのABNF類
 
 staticなものはとりあえずあるだけなので継承されている場合などは使わない方がいい
@@ -14,3 +15,5 @@ abnfをリソースファイルで持っておいて読み込むには
 URL url = getClass().getResource("/net/siisise/abnf/rfc/IMF5322.abnf");
 ABNFReg reg = new ABNFReg(url, ABNF5234.BASE);
 boolean b = reg.ref("addr-spec").eq("okome@example.com");
+*/
+package net.siisise.abnf.rfc;

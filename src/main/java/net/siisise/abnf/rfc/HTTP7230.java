@@ -1,3 +1,18 @@
+/*
+ * Copyright 2023 okome.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.siisise.abnf.rfc;
 
 import net.siisise.abnf.ABNF;
@@ -19,7 +34,7 @@ import net.siisise.abnf.parser5234.Repetition;
  */
 public class HTTP7230 {
 
-    static final ABNFCC PAR = new ABNFCC(ABNF5234.copyREG(), ABNF5234.REG);
+    public static final ABNFCC PAR = new ABNFCC(ABNF5234.copyREG(), ABNF5234.REG);
 
     // Section 7 ABNF Parserの拡張
     static final ABNF repList = PAR.rule("rep-list", ABNF5234.DIGIT.x().pl(ABNF.bin('#'), ABNF5234.DIGIT.x()).or(ABNF5234.DIGIT.ix()));

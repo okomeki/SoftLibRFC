@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 okome.
+ * Copyright 2023 okome.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,35 +15,35 @@
  */
 package net.siisise.abnf.rfc;
 
-import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import net.siisise.bnf.BNF;
+import net.siisise.io.Packet;
+import net.siisise.io.PacketA;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
+ * @author okome
  */
-public class HTTP7230Test {
+public class HTTP9112Test {
     
-    public HTTP7230Test() {
+    public HTTP9112Test() {
     }
 
     @Test
     public void testSomeMethod() {
-        assertTrue(HTTP7230.query.eq("slksje"));
+        System.out.println("HTTP9112");
+        Packet pac = new PacketA();
+        Charset utf8 = StandardCharsets.UTF_8;
+        String buffer = "Host: 127.2.3.4:1234\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0\r\n\r\n";
+        pac.write(buffer.getBytes(utf8));
+        BNF.Match result = HTTP9112.REG.find(pac, "trailer-section", "field-line");
+        System.out.println("size : " + result.sub.size());
+        System.out.println(new String(result.sub.toByteArray(),utf8));
         // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
+        assertNotNull(result);
     }
     
-    /**
-     * 最適化なしで突っ込む。
-     * デバッグでは重いかも
-     * @throws IOException 
-     */
-    @Test
-    public void testResource() throws IOException {
-//        ABNFReg http = new ABNFReg(getClass().getResource("HTTP7230.abnf"), URI3986.REG, HTTP7230.PAR);
-//        assertTrue(http.href("query").eq("slksje"));
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
-    }
 }
