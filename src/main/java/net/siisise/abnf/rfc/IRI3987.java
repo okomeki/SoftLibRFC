@@ -20,7 +20,7 @@ import net.siisise.abnf.ABNFReg;
 import net.siisise.abnf.parser5234.ABNF5234;
 
 /**
- *
+ * RFC 3987 IRIはURIへのマッピングができる.
  */
 public class IRI3987 {
 
