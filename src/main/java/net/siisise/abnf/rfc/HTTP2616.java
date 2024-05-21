@@ -23,6 +23,7 @@ import net.siisise.abnf.ABNFReg;
  * RFC 7230により廃止 適度にABNF風にしたもの
  * @deprecated RFC 7230
  */
+@Deprecated
 public class HTTP2616 {
 
     public static final ABNFReg REG = new ABNFReg();

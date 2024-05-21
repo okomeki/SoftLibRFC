@@ -7,6 +7,7 @@ import net.siisise.abnf.parser5234.ABNF5234;
 /**
  * @deprecated 未検証あり
  */
+@Deprecated
 public class SPF7208 {
 
     public static final ABNFReg REG = new ABNFReg();

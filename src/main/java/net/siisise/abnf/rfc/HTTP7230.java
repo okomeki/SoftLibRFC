@@ -32,6 +32,7 @@ import net.siisise.abnf.parser5234.Repetition;
  * https://tools.ietf.org/html/rfc7230 Section 7
  * URI3986
  */
+@Deprecated
 public class HTTP7230 {
 
     public static final ABNFCC PAR = new ABNFCC(ABNF5234.copyREG(), ABNF5234.REG);

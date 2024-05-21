@@ -23,6 +23,7 @@ import net.siisise.abnf.ABNFReg;
  *
  * @deprecated RFC 7235
  */
+@Deprecated
 public class HTTPAuthentication2617 {
 
     public static final ABNFReg REG = new ABNFReg(HTTP2616.REG, HTTP7230.PAR);

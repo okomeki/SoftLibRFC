@@ -7,8 +7,8 @@ import net.siisise.abnf.parser5234.ABNF5234;
 /**
  * 廃止されているけど作ってみる
  * @deprecated TelURI3966
- * @author okome
  */
+@Deprecated
 public class TelURL2806 {
     public static final ABNFReg REG = new ABNFReg(ABNF5234.BASE);
     
@@ -66,6 +66,7 @@ public class TelURL2806 {
     /**
      * @deprecated TelURI3966 では廃止
      */
+    @Deprecated
     public static final ABNF faxUrl = REG.rule("fax-url","fax-scheme \":\" fax-subscriber");
 
     static final ABNF modemType = REG.rule("modem-type","1*(ALPHA / DIGIT / \"-\" / \"+\")");
@@ -84,6 +85,7 @@ public class TelURL2806 {
     /**
      * @deprecated TelURI3966 では廃止
      */
+    @Deprecated
     public static final ABNF modemUrl = REG.rule("modem-url","modem-scheme \":\" remote-host");
 
 }
