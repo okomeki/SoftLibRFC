@@ -22,4 +22,8 @@ public class URI6874 extends URI3986 {
     public static final ABNF URI = REG.href("URI");
     public static final ABNF relativeRef = REG.href("relative-ref");
     public static final ABNF URIreference = REG.href("URI-reference");
+    
+    public URI6874(String uri) {
+        super(uri);
+    }
 }

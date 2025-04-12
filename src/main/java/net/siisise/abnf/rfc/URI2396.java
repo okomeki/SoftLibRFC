@@ -20,7 +20,7 @@ public class URI2396 {
 
     static final ABNF reserved = REG.rule("reserved", ABNF.list(";/?:@&=+$,"));  // RFC 2732 で更新
     static final ABNF mark = REG.rule("mark", ABNF.list("-_.!~*'()"));
-    static final ABNF unreserved = REG.rule("unreserved", alphanum.or1(mark));
+    public static final ABNF unreserved = REG.rule("unreserved", alphanum.or1(mark));
     static final ABNF hex = REG.rule("hex", digit.or1(ABNF.range('A', 'F'),ABNF.range('a', 'f')));
     static final ABNF escaped = REG.rule("escaped", ABNF.bin('%').pl(hex, hex));
     static final ABNF uric = REG.rule("uric", REG.ref("reserved").or1(unreserved, escaped));
@@ -28,7 +28,7 @@ public class URI2396 {
     static final ABNF control = REG.rule("control", ABNF5234.CTL);
     static final ABNF space = REG.rule("space", ABNF.bin(0x20));
     static final ABNF delims = REG.rule("delims", ABNF.list("<>#%\""));
-    static final ABNF unwise = REG.rule("unwise", ABNF.list("()|\\^[]`")); // RFC 2732 で更新
+    public static final ABNF unwise = REG.rule("unwise", ABNF.list("()|\\^[]`")); // RFC 2732 で更新
 
     static final ABNF query = REG.rule("query", uric.x());
     static final ABNF pchar = REG.rule("pchar", unreserved.or1(escaped, ABNF.list(":@&=+$,")));

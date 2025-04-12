@@ -1,8 +1,12 @@
 package net.siisise.abnf.rfc;
 
+import java.nio.charset.StandardCharsets;
 import net.siisise.abnf.ABNF;
 import net.siisise.abnf.ABNFReg;
 import net.siisise.abnf.parser5234.ABNF5234;
+import net.siisise.block.ReadableBlock;
+import net.siisise.bnf.BNF;
+import net.siisise.io.Packet;
 
 /**
  * Uniform Resource Name.
@@ -41,4 +45,16 @@ public class URN8141 {
     static final ABNF NID = REG.rule("NID", "(alphanum) 0*30(ldh) (alphanum)");
     static final ABNF assignedName = REG.rule("assigned-name", "\"urn\" \":\" NID \":\" NSS");
     public static final ABNF namestring = REG.rule("namestring", "assigned-name [ rq-components ] [ \"#\" f-component ]");
+
+    private String urn;
+    
+    public URN8141(String urn) {
+        this.urn = urn;
+    }
+    
+    public String getNID() {
+        ReadableBlock rurn = ReadableBlock.wrap(urn);
+        BNF.Match<Packet> r = REG.find(rurn, "namestring", "NID");
+        return new String(r.get("NID").get(0).toByteArray(), StandardCharsets.UTF_8);
+    }
 }

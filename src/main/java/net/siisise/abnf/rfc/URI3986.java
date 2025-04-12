@@ -1,8 +1,13 @@
 package net.siisise.abnf.rfc;
 
+import java.nio.charset.StandardCharsets;
 import net.siisise.abnf.ABNF;
 import net.siisise.abnf.ABNFReg;
 import net.siisise.abnf.parser5234.ABNF5234;
+import net.siisise.block.ReadableBlock;
+import net.siisise.bnf.BNF;
+import net.siisise.io.Packet;
+import net.siisise.io.PacketA;
 
 /**
  * URI6874でIPv6の拡張が追加されているのでそちらを推奨する。
@@ -20,7 +25,7 @@ public class URI3986 {
 
     static final ABNF pctEncoded = REG.rule("pct-encoded", ABNF.bin('%').pl(ABNF5234.HEXDIG, ABNF5234.HEXDIG));
     static final ABNF genDelims = REG.rule("gen-delims", ABNF.binlist(":/?#[]@"));
-    static final ABNF subDelims = REG.rule("sub-delims", ABNF.binlist("!$&'()*+,;="));
+    public static final ABNF subDelims = REG.rule("sub-delims", ABNF.binlist("!$&'()*+,;="));
     public static final ABNF reserved = REG.rule("reserved", genDelims.or1(subDelims));
     public static final ABNF unreserved = REG.rule("unreserved", ABNF5234.ALPHA.or1(ABNF5234.DIGIT, ABNF.list("-._~")));
 
@@ -69,4 +74,114 @@ public class URI3986 {
     public static final ABNF URIreference = REG.rule("URI-reference", URI.or(relativeRef));
     // 4.3.
     static final ABNF absoluteURI = REG.rule("absolute-URI", "scheme \":\" hier-part [ \"?\" query ]");
+    
+    private final String uri;
+    
+    public URI3986(String uri) {
+        this.uri = uri;
+    }
+
+    /**
+     * scheme
+     * @return scheme 
+     */
+    public String getScheme() {
+        ReadableBlock pac = ReadableBlock.wrap(uri);
+        BNF.Match<Packet> m = REG.find(pac, "URI", "scheme");
+        Packet s = m.get("scheme").get(0);
+        return new String(s.toByteArray(), StandardCharsets.UTF_8);
+    }
+    
+    
+    /**
+     * RFC 3986 Section 2.x のpercentEncode.
+     * https://developer.mozilla.org/ja/docs/Glossary/percent-encoding
+     * queryでは使わないっぽい
+     * 
+     * @param src ふつうの文字列
+     * @param bnf エスケープ除外文字判定
+     * @return URLに適した文字列
+     */
+    public static String urlPercentEncode(String src, ABNF bnf) {
+        byte[] ar = src.getBytes(StandardCharsets.UTF_8);
+        ReadableBlock srcBlock = ReadableBlock.wrap(ar);
+        Packet rb = new PacketA();
+        
+        while ( srcBlock.length() > 0 ) {
+            ReadableBlock ur = bnf.is(srcBlock); // utf-8 バイト単位で読めるかな?
+            if (ur != null) {
+                rb.write(ur);
+            } else {
+                rb.write('%');
+                int c = (byte)srcBlock.read();
+                String b = "0" + Integer.toHexString(c).toUpperCase();
+                rb.write(b.substring(b.length()-2).getBytes(StandardCharsets.UTF_8));
+            }
+        }
+        return new String(rb.toByteArray(), StandardCharsets.UTF_8);
+    }
+    
+    /**
+     * query などにフルエスケープ.
+     * @param src
+     * @return 
+     */
+    public static String unreservedPercentEncode(String src) {
+        return urlPercentEncode(src, net.siisise.abnf.rfc.URI3986.unreserved);
+    }
+
+    /**
+     * 
+     */
+    static final ABNF queryEscape = net.siisise.abnf.rfc.URI3986.unreserved.or1(ABNF.binlist("!$()*,;:@/"));
+
+    /**
+     * queryのkey, valueに使えそうなエスケープ.
+     * 
+     * @param src key または value
+     * @return エスケープされたkey, value
+     */
+    public static String queryKeyValuePercentEncode(String src) {
+        return urlPercentEncode(src, queryEscape);
+    }
+    
+    /**
+     * スペースの処理はない.
+     * segment など用 /? が含まれない
+     * & がエスケープされないかも
+     * @param src
+     * @return 
+     */
+    public static String pcharPercentEncode(String src) {
+        return urlPercentEncode(src, net.siisise.abnf.rfc.URI3986.pchar);
+    }
+    
+    /**
+     * パラメータのデコード.
+     * @param encd
+     * @return 
+     */
+    public static String urlPercentDecode(String encd) {
+        Packet src = new PacketA(encd.getBytes(StandardCharsets.UTF_8));
+        Packet dec = new PacketA();
+        while (src.size() > 0) {
+            byte c = (byte) src.read();
+            if (c == '%' && src.length() >= 2) {
+                byte[] o = new byte[2];
+                src.read(o);
+                if (isHex(o[0]) && isHex(o[1])) {
+                    c = Byte.parseByte(new String(o, StandardCharsets.UTF_8), 16);
+                } else {
+                    src.backWrite(o);
+                }
+            }
+            dec.write(new byte[]{c});
+        }
+        return new String(dec.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    private static boolean isHex(byte c) {
+        return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+    }
+
 }

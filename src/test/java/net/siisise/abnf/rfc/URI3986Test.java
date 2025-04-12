@@ -3,6 +3,7 @@ package net.siisise.abnf.rfc;
 import java.io.IOException;
 import net.siisise.abnf.ABNFReg;
 import net.siisise.abnf.parser5234.ABNF5234;
+import net.siisise.block.ReadableBlock;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,7 +79,10 @@ public class URI3986Test {
 
         assertTrue(URI3986.URIreference.eq("http://okome@siisise.net/uss"));
         // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
+
+        ReadableBlock uri = ReadableBlock.wrap("urn:oid:2.3.4.5.6");
+        ReadableBlock p = URI3986.URI.is(uri);
+        assertNotNull(p);
     }
     
     @Test
