@@ -123,8 +123,8 @@ public class URI3986 {
     
     /**
      * query などにフルエスケープ.
-     * @param src
-     * @return 
+     * @param src 平文
+     * @return 符号化文
      */
     public static String unreservedPercentEncode(String src) {
         return urlPercentEncode(src, net.siisise.abnf.rfc.URI3986.unreserved);
@@ -148,9 +148,9 @@ public class URI3986 {
     /**
      * スペースの処理はない.
      * segment など用 /? が含まれない
-     * & がエスケープされないかも
-     * @param src
-     * @return 
+     * &amp; がエスケープされないかも
+     * @param src 平文
+     * @return 符号化文
      */
     public static String pcharPercentEncode(String src) {
         return urlPercentEncode(src, net.siisise.abnf.rfc.URI3986.pchar);
@@ -158,8 +158,8 @@ public class URI3986 {
     
     /**
      * パラメータのデコード.
-     * @param encd
-     * @return 
+     * @param encd 符号化文
+     * @return 平文
      */
     public static String urlPercentDecode(String encd) {
         Packet src = new PacketA(encd.getBytes(StandardCharsets.UTF_8));

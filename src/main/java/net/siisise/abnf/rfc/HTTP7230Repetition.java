@@ -39,8 +39,8 @@ public class HTTP7230Repetition extends BNFBuildParser<ABNF, Object> {
      * n&gt;=1 , m&gt;1 に対し
      * &gt;n&lt;#&gt;m&lt;element -&lt; element &gt;n-1&lt;*&gt;m-1&lt;( OWS "," OWS element )
      *
-     * @param ret
-     * @return
+     * @param ret へんかんもと
+     * @return ABNF
      */
     @Override
     protected ABNF build(ABNF.Match<Object> ret) {        
